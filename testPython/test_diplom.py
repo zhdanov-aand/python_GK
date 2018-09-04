@@ -5,7 +5,8 @@ import io
 import os
 import linecache
 import csv
-
+import numpy as np
+import random
 
 start_interval = 100
 #start_interval = int(raw_input("Введите верхнюю границу целевого интервала: "));
@@ -19,7 +20,7 @@ GK_data=[]
 
 path_to_supporting_wells = "/home/artem/diplom/КУСТ_142_4863_ГС_ЮК3/3_СОПРОВОЖДЕНИЕ/3.1_ОПОРНЫЕ_СКВАЖИНЫ/"
 directories = os.listdir(path_to_supporting_wells)
-#print(len(directories))
+# print(len(directories))
 k=0;
 nubmer_ASCII=30;
 list_inclinometries_read = []
@@ -109,11 +110,97 @@ for i in directories:
 
 print ("inclinometries with koeff 5", list_inclinometries)
 
-print ("GK_data",GK_data)
+#print ("GK_data",GK_data)
 
 
-print ("GK_data element",GK_data[2])
+for i in range(len(GK_data)):
+	for j in range(len(GK_data[i])):
+		if GK_data[i][j] == -999.25:
+			GK_data[i][j]=0;
 
+
+
+#print ("GK_data element",GK_data[2])
+
+#a=np.random.uniform(1, 10, (1, len(GK_data[0])))
+GK_new_well = np.random.uniform(1, 8,  len(GK_data[0]))
+print ("GK_data",GK_data,"test")
+print ("GK_new_well",GK_new_well)
+
+
+GK_min_raznost=[]
+for i in range(len(GK_new_well)):
+	# GK_min_raznost[i]=abs(GK_new_well[i]-GK_data[0][i])
+	GK_min_raznost.append(abs(GK_new_well[i]-GK_data[0][i]))
+	for j in range(len(GK_data)-1):
+		if abs(GK_new_well[i]-GK_data[j+1][i])<GK_min_raznost[i]:
+			# GK_min_raznost[i]=abs(GK_new_well[i]-GK_data[j+1][i])
+			del GK_min_raznost[len(GK_min_raznost)-1]
+			GK_min_raznost.append(abs(GK_new_well[i]-GK_data[j+1][i]))
+
+print("GK_min_raznost",GK_min_raznost)
+
+
+# print("MODYL",abs(GK_new_well[2]-GK_data[0][2]),"Что лежит в массиве",GK_min_raznost[2])
+
+
+GK_number_well_with_min_raznost=[]
+for i in range(len(GK_new_well)):
+	GK_number_well_with_min_raznost.append(0)
+	for j in range(len(GK_data)-1):
+		if abs(GK_new_well[i]-GK_data[j+1][i]) == GK_min_raznost[i]:
+			# print("MODYL",abs(GK_new_well[i]-GK_data[j+1][i]),"Что лежит в массиве",GK_min_raznost[i])
+			del GK_number_well_with_min_raznost[len(GK_number_well_with_min_raznost)-1]
+			GK_number_well_with_min_raznost.append(j+1)
+
+print("GK_number_well_with_min_raznost",GK_number_well_with_min_raznost)
+
+
+GK_good_with_all_wells=[]
+for i in range(len(GK_number_well_with_min_raznost)):
+	for k in range(len(directories)):
+		if GK_number_well_with_min_raznost[i] == k:
+			GK_good_with_all_wells.append(GK_data[k][i]);
+
+print("GK_good_with_all_wells",GK_good_with_all_wells)
+
+
+
+GK_name_well_with_min_raznost=list(GK_number_well_with_min_raznost)
+# print("GK_name_well_with_min_raznost",GK_name_well_with_min_raznost,len(GK_name_well_with_min_raznost))
+
+
+# print(directories)
+
+
+for i in range(len(GK_name_well_with_min_raznost)):
+	for k in range(len(directories)):
+		if GK_name_well_with_min_raznost[i] == k:
+			GK_name_well_with_min_raznost[i]=directories[k];
+
+print("GK_name_well_with_min_raznost",GK_name_well_with_min_raznost)
+
+
+
+
+nearest_well = None # наиболее часто встречаемое значение
+count_nearest_well = 0
+for item in GK_name_well_with_min_raznost:
+    # переменной count присваивается количество случаев
+    # item в списке a
+    count = GK_name_well_with_min_raznost.count(item)
+    # Если это количество больше максимального,
+    if count > count_nearest_well:
+        count_nearest_well = count # то заменяем на него максимальное,
+        nearest_well = item # запоминаем само значение
+
+# вывод значения на экран
+print("Ближайшая скважина: ",nearest_well)
+
+
+
+
+#print (a,len(a),len(GK_data[1]))
 # word = u'100.00'
 # k=0
 # with io.open('/home/artem/diplom/КУСТ_142_4863_ГС_ЮК3/3_СОПРОВОЖДЕНИЕ/3.1_ОПОРНЫЕ_СКВАЖИНЫ/540г/540Р_GK.MKRH.las', encoding='ISO-8859-1') as file:
